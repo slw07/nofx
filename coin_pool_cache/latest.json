@@ -1,0 +1,46 @@
+{
+  "coins": [
+    {
+      "pair": "PIPPINUSDT",
+      "score": 86.52799999999999,
+      "start_time": 1765126500,
+      "start_price": 0.15936,
+      "last_score": 88.57,
+      "max_score": 92.089,
+      "max_price": 0.36264,
+      "increase_percent": 127.56024096385543
+    },
+    {
+      "pair": "ZECUSDT",
+      "score": 83.197,
+      "start_time": 1765179300,
+      "start_price": 371.41,
+      "last_score": 80.257,
+      "max_score": 83.569,
+      "max_price": 460.87,
+      "increase_percent": 24.08658894483185
+    },
+    {
+      "pair": "KITEUSDT",
+      "score": 80.74620596473001,
+      "start_time": 1764066000,
+      "start_price": 0.10738,
+      "last_score": 82.31684238948995,
+      "max_score": 84.38566906225,
+      "max_price": 0.12165,
+      "increase_percent": 13.289253119761584
+    },
+    {
+      "pair": "ARCUSDT",
+      "score": 78.23771916118999,
+      "start_time": 1764843300,
+      "start_price": 0.04012,
+      "last_score": 73.23844162512,
+      "max_score": 78.33341262977,
+      "max_price": 0.04088,
+      "increase_percent": 1.8943170488534316
+    }
+  ],
+  "fetched_at": "2025-12-12T18:31:49.3510487+08:00",
+  "source_type": "api"
+}
