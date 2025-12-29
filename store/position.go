@@ -469,6 +469,15 @@ func (s *PositionStore) GetPositionStats(traderID string) (map[string]interface{
 func (s *PositionStore) GetFullStats(traderID string) (*TraderStats, error) {
 	stats := &TraderStats{}
 
+	// First check how many rows exist
+	var count int
+	if err := s.db.QueryRow(`SELECT COUNT(*) FROM trader_positions WHERE trader_id = ? AND status = 'CLOSED'`, traderID).Scan(&count); err == nil {
+		if count == 0 {
+			// No closed positions, return empty stats
+			return stats, nil
+		}
+	}
+
 	// Query all closed positions
 	rows, err := s.db.Query(`
 		SELECT realized_pnl, fee, exit_time
@@ -668,19 +677,25 @@ func calculateSharpeRatioFromPnls(pnls []float64) float64 {
 }
 
 // calculateMaxDrawdownFromPnls calculates maximum drawdown
+// Uses a virtual starting equity of 10000 to calculate percentage drawdown
 func calculateMaxDrawdownFromPnls(pnls []float64) float64 {
 	if len(pnls) == 0 {
 		return 0
 	}
 
-	var cumulative, peak, maxDD float64
+	// Use virtual starting equity for percentage calculation
+	const startingEquity = 10000.0
+	equity := startingEquity
+	peak := startingEquity
+	var maxDD float64
+
 	for _, pnl := range pnls {
-		cumulative += pnl
-		if cumulative > peak {
-			peak = cumulative
+		equity += pnl
+		if equity > peak {
+			peak = equity
 		}
 		if peak > 0 {
-			dd := (peak - cumulative) / peak * 100
+			dd := (peak - equity) / peak * 100
 			if dd > maxDD {
 				maxDD = dd
 			}
