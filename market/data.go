@@ -9,10 +9,7 @@ import (
 	"nofx/logger"
 	"nofx/provider/coinank/coinank_api"
 	"nofx/provider/coinank/coinank_enum"
-<<<<<<< HEAD
-=======
 	"nofx/provider/hyperliquid"
->>>>>>> upstream/dev
 	"strconv"
 	"strings"
 	"sync"
