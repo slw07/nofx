@@ -744,8 +744,8 @@ func (at *AutoTrader) buildTradingContext() (*kernel.Context, error) {
 		// Priority 1: Get from database (trader_positions table) - most accurate
 		if at.store != nil {
 			if dbPos, err := at.store.Position().GetOpenPositionBySymbol(at.id, symbol, side); err == nil && dbPos != nil {
-				if !dbPos.EntryTime.IsZero() {
-					updateTime = dbPos.EntryTime.UnixMilli()
+				if dbPos.EntryTime > 0 {
+					updateTime = dbPos.EntryTime
 				}
 			}
 		}
@@ -1967,6 +1967,7 @@ func (at *AutoTrader) recordPositionChange(orderID, symbol, side, action string,
 	switch action {
 	case "open_long", "open_short":
 		// Open position: create new position record
+		nowMs := time.Now().UTC().UnixMilli()
 		pos := &store.TraderPosition{
 			TraderID:     at.id,
 			ExchangeID:   at.exchangeID, // Exchange account UUID
@@ -1976,9 +1977,11 @@ func (at *AutoTrader) recordPositionChange(orderID, symbol, side, action string,
 			Quantity:     quantity,
 			EntryPrice:   price,
 			EntryOrderID: orderID,
-			EntryTime:    time.Now().UTC(),
+			EntryTime:    nowMs,
 			Leverage:     leverage,
 			Status:       "OPEN",
+			CreatedAt:    nowMs,
+			UpdatedAt:    nowMs,
 		}
 		if err := at.store.Position().Create(pos); err != nil {
 			logger.Infof("  ⚠️ Failed to record position: %v", err)
@@ -1996,7 +1999,7 @@ func (at *AutoTrader) recordPositionChange(orderID, symbol, side, action string,
 			at.id, at.exchangeID, at.exchange,
 			symbol, side, action,
 			quantity, price, fee, 0, // realizedPnL will be calculated
-			time.Now().UTC(), orderID,
+			time.Now().UTC().UnixMilli(), orderID,
 		); err != nil {
 			logger.Infof("  ⚠️ Failed to process close position: %v", err)
 		} else {
@@ -2049,8 +2052,8 @@ func (at *AutoTrader) createOrderRecord(orderID, symbol, action, positionSide st
 		ReduceOnly:      reduceOnly,
 		ClosePosition:   reduceOnly,
 		OrderAction:     orderAction,
-		CreatedAt:       time.Now().UTC(),
-		UpdatedAt:       time.Now().UTC(),
+		CreatedAt:       time.Now().UTC().UnixMilli(),
+		UpdatedAt:       time.Now().UTC().UnixMilli(),
 	}
 }
 
@@ -2076,6 +2079,7 @@ func (at *AutoTrader) recordOrderFill(orderRecordID int64, exchangeOrderID, symb
 	normalizedSymbol := market.Normalize(symbol)
 
 	fill := &store.TraderFill{
+<<<<<<< HEAD
 		TraderID:        at.id,
 		ExchangeID:      at.exchangeID,
 		ExchangeType:    at.exchange,
@@ -2092,6 +2096,24 @@ func (at *AutoTrader) recordOrderFill(orderRecordID int64, exchangeOrderID, symb
 		RealizedPnL:     0,     // Will be calculated for close orders
 		IsMaker:         false, // Market orders are usually taker
 		CreatedAt:       time.Now().UTC(),
+=======
+		TraderID:         at.id,
+		ExchangeID:       at.exchangeID,
+		ExchangeType:     at.exchange,
+		OrderID:          orderRecordID,
+		ExchangeOrderID:  exchangeOrderID,
+		ExchangeTradeID:  tradeID,
+		Symbol:           normalizedSymbol,
+		Side:             side,
+		Price:            price,
+		Quantity:         quantity,
+		QuoteQuantity:    price * quantity,
+		Commission:       fee,
+		CommissionAsset:  "USDT",
+		RealizedPnL:      0, // Will be calculated for close orders
+		IsMaker:          false, // Market orders are usually taker
+		CreatedAt:        time.Now().UTC().UnixMilli(),
+>>>>>>> upstream/dev
 	}
 
 	// Calculate realized PnL for close orders
@@ -2214,3 +2236,12 @@ func getSideFromAction(action string) string {
 		return "BUY"
 	}
 }
+<<<<<<< HEAD
+=======
+
+// GetOpenOrders returns open orders (pending SL/TP) from exchange
+func (at *AutoTrader) GetOpenOrders(symbol string) ([]OpenOrder, error) {
+	return at.trader.GetOpenOrders(symbol)
+}
+
+>>>>>>> upstream/dev
